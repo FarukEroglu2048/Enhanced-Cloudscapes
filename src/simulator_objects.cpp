@@ -87,6 +87,7 @@ namespace simulator_objects
 	glm::ivec2 current_rendering_resolution;
 
 	int skip_fragments;
+	int frame_index;
 
 	int reverse_z;
 
@@ -140,17 +141,14 @@ namespace simulator_objects
 		XPLMDataRef override_clouds_dataref = XPLMFindDataRef("sim/operation/override/override_clouds");
 		XPLMSetDatai(override_clouds_dataref, 1);
 
-		XPLMDataRef fog_clip_scale_dataref = XPLMFindDataRef("sim/private/controls/terrain/fog_clip_scale");
-		XPLMSetDataf(fog_clip_scale_dataref, -100.0);
-
 		XPLMDataRef version_dataref = XPLMFindDataRef("sim/version/xplane_internal_version");
 		version = XPLMGetDatai(version_dataref);
 
 		viewport_dataref = XPLMFindDataRef("sim/graphics/view/viewport");
 		current_eye_dataref = XPLMFindDataRef("sim/graphics/view/draw_call_type");
 
-		rendering_resolution_ratio_dataref = export_float_dataref("enhanced_cloudscapes/rendering_resolution_ratio", 0.6);
-		skip_fragments_dataref = export_int_dataref("enhanced_cloudscapes/skip_fragments", 0);
+		rendering_resolution_ratio_dataref = export_float_dataref("enhanced_cloudscapes/rendering_resolution_ratio", 0.5);
+		skip_fragments_dataref = export_int_dataref("enhanced_cloudscapes/skip_fragments", 1);
 
 		reverse_z_dataref = XPLMFindDataRef("sim/graphics/view/is_reverse_float_z");
 
@@ -237,13 +235,18 @@ namespace simulator_objects
 
 	void update()
 	{
+		XPLMDataRef fog_clip_scale_dataref = XPLMFindDataRef("sim/private/controls/terrain/fog_clip_scale");
+		XPLMSetDataf(fog_clip_scale_dataref, -100.0);
+
+		int eye_index = XPLMGetDatai(current_eye_dataref);
+
 		previous_viewport = current_viewport;
 		XPLMGetDatavi(viewport_dataref, glm::value_ptr(current_viewport), 0, current_viewport.length());
 
 		current_viewport.z -= current_viewport.x;
 		current_viewport.w -= current_viewport.y;
 
-		if (XPLMGetDatai(current_eye_dataref) == 4) current_viewport.x += current_viewport.z;
+		if (eye_index == 4) current_viewport.x += current_viewport.z;
 
 		int screen_width;
 		int screen_height;
@@ -256,6 +259,7 @@ namespace simulator_objects
 		current_rendering_resolution = glm::ivec2(screen_width * rendering_resolution_ratio, screen_height * rendering_resolution_ratio);
 
 		skip_fragments = XPLMGetDatai(skip_fragments_dataref);
+		if ((eye_index == 1) || (eye_index == 4)) frame_index++;
 
 		reverse_z = XPLMGetDatai(reverse_z_dataref);
 

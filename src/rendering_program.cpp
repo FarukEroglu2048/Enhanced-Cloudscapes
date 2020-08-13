@@ -11,8 +11,6 @@
 
 namespace rendering_program
 {
-	int current_frame;
-
 	GLint reference;
 
 	GLint skip_fragments;
@@ -183,9 +181,7 @@ namespace rendering_program
 		glBindTexture(GL_TEXTURE_2D, plugin_objects::rendering_texture);
 
 		glUniform1i(skip_fragments, simulator_objects::skip_fragments);
-
-		glUniform1i(frame_index, current_frame % 2);
-		current_frame++;
+		glUniform1i(frame_index, simulator_objects::frame_index);
 
 		glUniform1f(near_clip_z, simulator_objects::near_clip_z);
 		glUniform1f(far_clip_z, simulator_objects::far_clip_z);

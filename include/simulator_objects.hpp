@@ -19,6 +19,7 @@ namespace simulator_objects
 	extern glm::ivec2 current_rendering_resolution;
 
 	extern int skip_fragments;
+	extern int frame_index;
 
 	extern int reverse_z;
 

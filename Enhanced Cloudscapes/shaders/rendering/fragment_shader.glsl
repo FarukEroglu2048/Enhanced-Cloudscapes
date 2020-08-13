@@ -299,11 +299,14 @@ vec4 render_clouds()
 
 	output_color.w *= map(shadow_attenuation, 0.0, 1.0, 0.25, 1.0);
 
-	return vec4(output_color.xyz / (1.0 - output_color.w), 1.0 - output_color.w);
+	output_color.w = 1.0 - output_color.w;
+	output_color.xyz /= output_color.w;
+
+	return output_color;
 }
 
 void main()
 {
-	if ((skip_fragments != 0) && (frame_index == (int(gl_FragCoord.x) % 2))) fragment_color = texture(rendering_texture, fullscreen_texture_position);
+	if ((skip_fragments != 0) && ((frame_index % 2) == (int(gl_FragCoord.x) % 2))) fragment_color = texture(rendering_texture, fullscreen_texture_position);
 	else fragment_color = render_clouds();
 }

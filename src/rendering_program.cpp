@@ -15,13 +15,14 @@ namespace rendering_program
 
 	GLint reference;
 
+	GLint skip_fragments;
+	GLint frame_index;
+
 	GLint near_clip_z;
 	GLint far_clip_z;
 
 	GLint inverse_projection_matrix;
 	GLint inverse_modelview_matrix;
-
-	GLint frame_index;
 
 	GLint cloud_map_scale;
 
@@ -93,13 +94,14 @@ namespace rendering_program
 
 		glUniform1i(rendering_texture, 7);
 
+		skip_fragments = glGetUniformLocation(reference, "skip_fragments");
+		frame_index = glGetUniformLocation(reference, "frame_index");
+
 		near_clip_z = glGetUniformLocation(reference, "near_clip_z");
 		far_clip_z = glGetUniformLocation(reference, "far_clip_z");
 
 		inverse_projection_matrix = glGetUniformLocation(reference, "inverse_projection_matrix");
 		inverse_modelview_matrix = glGetUniformLocation(reference, "inverse_modelview_matrix");
-
-		frame_index = glGetUniformLocation(reference, "frame_index");
 
 		cloud_map_scale = glGetUniformLocation(reference, "cloud_map_scale");
 
@@ -180,14 +182,16 @@ namespace rendering_program
 		glActiveTexture(GL_TEXTURE7);
 		glBindTexture(GL_TEXTURE_2D, plugin_objects::rendering_texture);
 
+		glUniform1i(skip_fragments, simulator_objects::skip_fragments);
+
+		glUniform1i(frame_index, current_frame % 2);
+		current_frame++;
+
 		glUniform1f(near_clip_z, simulator_objects::near_clip_z);
 		glUniform1f(far_clip_z, simulator_objects::far_clip_z);
 
 		glUniformMatrix4fv(inverse_projection_matrix, 1, GL_FALSE, glm::value_ptr(simulator_objects::inverse_projection_matrix));
 		glUniformMatrix4fv(inverse_modelview_matrix, 1, GL_FALSE, glm::value_ptr(simulator_objects::inverse_modelview_matrix));
-
-		glUniform1i(frame_index, current_frame % 2);
-		current_frame++;
 
 		glUniform1f(cloud_map_scale, simulator_objects::cloud_map_scale);
 

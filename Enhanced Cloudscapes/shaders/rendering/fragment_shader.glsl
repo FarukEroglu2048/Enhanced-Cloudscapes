@@ -29,13 +29,14 @@ uniform sampler2D blue_noise_texture;
 
 uniform sampler2D rendering_texture;
 
+uniform int skip_fragments;
+uniform int frame_index;
+
 uniform float near_clip_z;
 uniform float far_clip_z;
 
 uniform mat4 inverse_projection_matrix;
 uniform mat4 inverse_modelview_matrix;
-
-uniform int frame_index;
 
 uniform float cloud_map_scale;
 
@@ -303,6 +304,6 @@ vec4 render_clouds()
 
 void main()
 {
-	if (frame_index == (int(gl_FragCoord.x) % 2)) fragment_color = texture(rendering_texture, fullscreen_texture_position);
+	if ((skip_fragments != 0) && (frame_index == (int(gl_FragCoord.x) % 2))) fragment_color = texture(rendering_texture, fullscreen_texture_position);
 	else fragment_color = render_clouds();
 }

@@ -141,7 +141,7 @@ namespace simulator_objects
 		XPLMSetDatai(override_clouds_dataref, 1);
 
 		XPLMDataRef fog_clip_scale_dataref = XPLMFindDataRef("sim/private/controls/terrain/fog_clip_scale");
-		XPLMSetDataf(fog_clip_scale_dataref, 0.0);
+		XPLMSetDataf(fog_clip_scale_dataref, -100.0);
 
 		XPLMDataRef version_dataref = XPLMFindDataRef("sim/version/xplane_internal_version");
 		version = XPLMGetDatai(version_dataref);
@@ -149,8 +149,8 @@ namespace simulator_objects
 		viewport_dataref = XPLMFindDataRef("sim/graphics/view/viewport");
 		current_eye_dataref = XPLMFindDataRef("sim/graphics/view/draw_call_type");
 
-		rendering_resolution_ratio_dataref = export_float_dataref("enhanced_cloudscapes/rendering_resolution_ratio", 0.7);
-		skip_fragments_dataref = export_int_dataref("enhanced_cloudscapes/skip_fragments", 1);
+		rendering_resolution_ratio_dataref = export_float_dataref("enhanced_cloudscapes/rendering_resolution_ratio", 0.6);
+		skip_fragments_dataref = export_int_dataref("enhanced_cloudscapes/skip_fragments", 0);
 
 		reverse_z_dataref = XPLMFindDataRef("sim/graphics/view/is_reverse_float_z");
 
@@ -176,13 +176,13 @@ namespace simulator_objects
 		cloud_top_datarefs[1] = XPLMFindDataRef("sim/weather/cloud_tops_msl_m[1]");
 		cloud_top_datarefs[2] = XPLMFindDataRef("sim/weather/cloud_tops_msl_m[2]");
 
-		cloud_coverage_datarefs[0] = export_float_dataref("enhanced_cloudscapes/cirrus/coverage", 0.75f);
+		cloud_coverage_datarefs[0] = export_float_dataref("enhanced_cloudscapes/cirrus/coverage", 1.0f);
 		cloud_coverage_datarefs[1] = export_float_dataref("enhanced_cloudscapes/scattered/coverage", 0.75f);
 		cloud_coverage_datarefs[2] = export_float_dataref("enhanced_cloudscapes/broken/coverage", 0.85f);
 		cloud_coverage_datarefs[3] = export_float_dataref("enhanced_cloudscapes/overcast/coverage", 0.95f);
 		cloud_coverage_datarefs[4] = export_float_dataref("enhanced_cloudscapes/stratus/coverage", 1.0f);
 
-		cloud_density_datarefs[0] = export_float_dataref("enhanced_cloudscapes/cirrus/density_multiplier", 0.0015);
+		cloud_density_datarefs[0] = export_float_dataref("enhanced_cloudscapes/cirrus/density_multiplier", 0.00065);
 		cloud_density_datarefs[1] = export_float_dataref("enhanced_cloudscapes/scattered/density_multiplier", 0.0035);
 		cloud_density_datarefs[2] = export_float_dataref("enhanced_cloudscapes/broken/density_multiplier", 0.004);
 		cloud_density_datarefs[3] = export_float_dataref("enhanced_cloudscapes/overcast/density_multiplier", 0.004);
@@ -294,7 +294,7 @@ namespace simulator_objects
 
 			float new_height;
 
-			if (cloud_types[layer_index] == 1) new_height = 300.0;
+			if (cloud_types[layer_index] == 1) new_height = 250.0;
 			else new_height = glm::max((XPLMGetDataf(cloud_top_datarefs[layer_index]) - cloud_bases[layer_index]) / 0.75f, 2500.0f);
 
 			cloud_tops[layer_index] = cloud_bases[layer_index] + new_height;

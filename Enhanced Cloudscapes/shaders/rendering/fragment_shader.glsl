@@ -265,7 +265,7 @@ vec4 sample_ray_march(in vec4 input_color, in int cloud_layer_index)
 					vec3 sun_color = sun_tint * sun_gain * mie_scattering_gain * light_attenuation * sun_angle_multiplier;
 					vec3 ambient_color = mix(ambient_tint, mix(atmosphere_bottom_tint, atmosphere_top_tint, get_height_ratio(current_ray_position, cloud_layer_index)), atmospheric_blending) * ambient_gain * dot(sun_tint, vec3(0.21, 0.72, 0.07)) * sun_angle_multiplier;
 
-					vec3 sample_color = (ambient_color + sun_color) * clamp(1.75 - cloud_coverages[cloud_types[cloud_layer_index] - 1], 0.75, 1.0) * cloud_sample * current_step_size;
+					vec3 sample_color = (ambient_color + sun_color) * cloud_sample * current_step_size;
 					float sample_transmittance = exp(-1.0 * cloud_sample * current_step_size);
 
 					output_color.xyz += sample_color * output_color.w;

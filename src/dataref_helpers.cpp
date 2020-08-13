@@ -1,5 +1,15 @@
 #include <dataref_helpers.hpp>
 
+int read_int_callback(void* float_pointer)
+{
+	return *static_cast<int*>(float_pointer);
+}
+
+void write_int_callback(void* float_pointer, int new_value)
+{
+	*static_cast<int*>(float_pointer) = new_value;
+}
+
 float read_float_callback(void* float_pointer)
 {
 	return *static_cast<float*>(float_pointer);
@@ -40,6 +50,13 @@ void write_vec3_callback(void* vector_pointer, float* input_values, int write_of
 	else if (write_end > output_vec3.length()) write_end = output_vec3.length();
 
 	for (int index = write_start; index < write_end; index++) output_vec3[index] = input_values[index];
+}
+
+XPLMDataRef export_int_dataref(char* dataref_name, int initial_value)
+{
+	int* int_pointer = new int(initial_value);
+
+	return XPLMRegisterDataAccessor(dataref_name, xplmType_Int, 1, read_int_callback, write_int_callback, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, int_pointer, int_pointer);
 }
 
 XPLMDataRef export_float_dataref(char* dataref_name, float initial_value)

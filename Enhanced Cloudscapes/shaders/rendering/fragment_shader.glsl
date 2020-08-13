@@ -11,8 +11,6 @@
 #define CLOUD_LAYER_COUNT 3
 #define CLOUD_TYPE_COUNT 5
 
-#define WIND_LAYER_COUNT 3
-
 #define PI 3.141592653589793
 
 in vec3 ray_start_position;
@@ -37,9 +35,7 @@ uniform float far_clip_z;
 uniform mat4 inverse_projection_matrix;
 uniform mat4 inverse_modelview_matrix;
 
-uniform mat4 previous_mvp_matrix;
-
-uniform int filter_index;
+uniform int frame_index;
 
 uniform float cloud_map_scale;
 
@@ -48,19 +44,18 @@ uniform float detail_noise_scale;
 
 uniform float blue_noise_scale;
 
-uniform float[CLOUD_LAYER_COUNT] cloud_bases;
-uniform float[CLOUD_TYPE_COUNT] cloud_heights;
-
 uniform int[CLOUD_LAYER_COUNT] cloud_types;
+
+uniform float[CLOUD_LAYER_COUNT] cloud_bases;
+uniform float[CLOUD_LAYER_COUNT] cloud_tops;
+
 uniform float[CLOUD_TYPE_COUNT] cloud_coverages;
+uniform float[CLOUD_TYPE_COUNT] cloud_densities;
 
 uniform vec3[CLOUD_TYPE_COUNT] base_noise_ratios;
 uniform vec3[CLOUD_TYPE_COUNT] detail_noise_ratios;
 
-uniform float[CLOUD_TYPE_COUNT] cloud_densities;
-
-uniform float[WIND_LAYER_COUNT] wind_altitudes;
-uniform vec3[WIND_LAYER_COUNT] wind_vectors;
+uniform vec3[CLOUD_TYPE_COUNT] wind_offsets;
 
 uniform float fade_start_distance;
 uniform float fade_end_distance;
@@ -81,8 +76,6 @@ uniform vec3 atmosphere_top_tint;
 
 uniform float atmospheric_blending;
 
-uniform float local_time;
-
 layout(location = 0) out vec4 fragment_color;
 
 float map(in float input_value, in float input_start, in float input_end, in float output_start, in float output_end)
@@ -101,26 +94,21 @@ float henyey_greenstein(in float dot_angle, in float scattering_value)
 
 float get_height_ratio(in vec3 ray_position, in int cloud_layer_index)
 {
-	return map(length(ray_position - EARTH_CENTER) - EARTH_RADIUS, cloud_bases[cloud_layer_index], cloud_bases[cloud_layer_index] + cloud_heights[cloud_types[cloud_layer_index] - 1], 0.0, 1.0);
+	return map(length(ray_position - EARTH_CENTER) - EARTH_RADIUS, cloud_bases[cloud_layer_index], cloud_tops[cloud_layer_index], 0.0, 1.0);
 }
 
 float sample_clouds(in vec3 ray_position, in int cloud_layer_index)
 {
-	vec3 wind_vector = vec3(0.0, 0.05, 0.0);
-	for (int wind_layer_index = 0; wind_layer_index < WIND_LAYER_COUNT; wind_layer_index++) wind_vector += wind_vectors[wind_layer_index] * clamp(pow(abs(cloud_bases[cloud_layer_index] - wind_altitudes[wind_layer_index]) * 0.001, 2.0), 0.0, 1.0);
-
-	vec3 wind_offset = wind_vector * local_time;
-
-	vec4 base_noise_sample = texture(base_noise_texture, (ray_position + wind_offset) * base_noise_scale);
+	vec4 base_noise_sample = texture(base_noise_texture, (ray_position + wind_offsets[cloud_layer_index]) * base_noise_scale);
 	float base_noise = map(base_noise_sample.x, dot(base_noise_sample.yzw, base_noise_ratios[cloud_types[cloud_layer_index] - 1]), 1.0, 0.0, 1.0);
 
-	vec2 cloud_map_sample = texture(cloud_map_textures[cloud_layer_index], (ray_position.xz + wind_offset.xz) * cloud_map_scale).xy;
+	vec2 cloud_map_sample = texture(cloud_map_textures[cloud_layer_index], (ray_position.xz + wind_offsets[cloud_layer_index].xz) * cloud_map_scale).xy;
 
 	if (cloud_types[cloud_layer_index] == 1) cloud_map_sample.y = 1.0;
 	else cloud_map_sample.y = map(cloud_map_sample.y, 0.0, 1.0, 0.625, 1.0);
 
 	float height_ratio = get_height_ratio(ray_position, cloud_layer_index);
-	float height_multiplier = min(map(height_ratio, 0.0, 0.15, 0.0, 1.0), map(height_ratio, 0.5 * cloud_map_sample.y, cloud_map_sample.y, 1.0, 0.0));
+	float height_multiplier = min(map(height_ratio, 0.0, 0.125, 0.0, 1.0), map(height_ratio, 0.625 * cloud_map_sample.y, cloud_map_sample.y, 1.0, 0.0));
 
 	float base_erosion = map(base_noise * height_multiplier, 1.0 - max(cloud_map_sample.x, cloud_coverages[cloud_types[cloud_layer_index] - 1]), 1.0, 0.0, 1.0);
 
@@ -165,7 +153,7 @@ vec3 get_world_intersection()
 vec2 ray_layer_intersections(in vec3 ray_position, in vec3 ray_direction, int cloud_layer_index)
 {
 	vec2 inner_sphere_intersections = ray_sphere_intersections(ray_position, ray_direction, cloud_bases[cloud_layer_index]);
-	vec2 outer_sphere_intersections = ray_sphere_intersections(ray_position, ray_direction, cloud_bases[cloud_layer_index] + cloud_heights[cloud_types[cloud_layer_index] - 1]);
+	vec2 outer_sphere_intersections = ray_sphere_intersections(ray_position, ray_direction, cloud_tops[cloud_layer_index]);
 
 	vec3 world_intersection = get_world_intersection();
 	float world_distance = length(world_intersection - ray_position);
@@ -222,13 +210,15 @@ float sun_ray_march(in float input_transmittance, in vec3 ray_position, in int c
 
 	if (cloud_types[cloud_layer_index] != 0)
 	{
-		float step_size = ((cloud_bases[cloud_layer_index] + cloud_heights[cloud_types[cloud_layer_index] - 1]) - ray_position.y) / SUN_STEP_COUNT;
+		float step_size = (cloud_tops[cloud_layer_index] - ray_position.y) / SUN_STEP_COUNT;
 
 		vec3 current_ray_position = ray_position;
 
 		for (int step_index = 0; step_index < SUN_STEP_COUNT; step_index++)
 		{
-			output_transmittance *= exp(-1.0 * sample_clouds(current_ray_position, cloud_layer_index) * step_size);
+			float cloud_sample = sample_clouds(current_ray_position, cloud_layer_index);
+
+			output_transmittance *= exp(-1.0 * cloud_sample * step_size);
 			if (output_transmittance < 0.01) break;
 
 			current_ray_position += sun_direction * step_size;
@@ -313,6 +303,6 @@ vec4 render_clouds()
 
 void main()
 {
-	if (filter_index == (int(gl_FragCoord.x) % 2)) fragment_color = texture(rendering_texture, fullscreen_texture_position);
+	if (frame_index == (int(gl_FragCoord.x) % 2)) fragment_color = texture(rendering_texture, fullscreen_texture_position);
 	else fragment_color = render_clouds();
 }

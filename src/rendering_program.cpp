@@ -11,6 +11,8 @@
 
 namespace rendering_program
 {
+	int current_frame;
+
 	GLint reference;
 
 	GLint near_clip_z;
@@ -19,9 +21,7 @@ namespace rendering_program
 	GLint inverse_projection_matrix;
 	GLint inverse_modelview_matrix;
 
-	GLint filter_index;
-
-	GLint previous_mvp_matrix;
+	GLint frame_index;
 
 	GLint cloud_map_scale;
 
@@ -30,19 +30,18 @@ namespace rendering_program
 
 	GLint blue_noise_scale;
 
-	GLint cloud_bases;
-	GLint cloud_heights;
-
 	GLint cloud_types;
+
+	GLint cloud_bases;
+	GLint cloud_tops;
+
 	GLint cloud_coverages;
+	GLint cloud_densities;
 
 	GLint base_noise_ratios;
 	GLint detail_noise_ratios;
 
-	GLint cloud_densities;
-
-	GLint wind_altitudes;
-	GLint wind_vectors;
+	GLint wind_offsets;
 
 	GLint fade_start_distance;
 	GLint fade_end_distance;
@@ -62,10 +61,6 @@ namespace rendering_program
 	GLint atmosphere_top_tint;
 
 	GLint atmospheric_blending;
-
-	GLint local_time;
-
-	int current_frame;
 
 	void initialize()
 	{
@@ -104,9 +99,7 @@ namespace rendering_program
 		inverse_projection_matrix = glGetUniformLocation(reference, "inverse_projection_matrix");
 		inverse_modelview_matrix = glGetUniformLocation(reference, "inverse_modelview_matrix");
 
-		filter_index = glGetUniformLocation(reference, "filter_index");
-
-		previous_mvp_matrix = glGetUniformLocation(reference, "previous_mvp_matrix");
+		frame_index = glGetUniformLocation(reference, "frame_index");
 
 		cloud_map_scale = glGetUniformLocation(reference, "cloud_map_scale");
 
@@ -115,19 +108,18 @@ namespace rendering_program
 
 		blue_noise_scale = glGetUniformLocation(reference, "blue_noise_scale");
 
-		cloud_bases = glGetUniformLocation(reference, "cloud_bases");
-		cloud_heights = glGetUniformLocation(reference, "cloud_heights");
-
 		cloud_types = glGetUniformLocation(reference, "cloud_types");
+
+		cloud_bases = glGetUniformLocation(reference, "cloud_bases");
+		cloud_tops = glGetUniformLocation(reference, "cloud_tops");
+
 		cloud_coverages = glGetUniformLocation(reference, "cloud_coverages");
+		cloud_densities = glGetUniformLocation(reference, "cloud_densities");
 
 		base_noise_ratios = glGetUniformLocation(reference, "base_noise_ratios");
 		detail_noise_ratios = glGetUniformLocation(reference, "detail_noise_ratios");
 
-		cloud_densities = glGetUniformLocation(reference, "cloud_densities");
-
-		wind_altitudes = glGetUniformLocation(reference, "wind_altitudes");
-		wind_vectors = glGetUniformLocation(reference, "wind_vectors");
+		wind_offsets = glGetUniformLocation(reference, "wind_offsets");
 
 		fade_start_distance = glGetUniformLocation(reference, "fade_start_distance");
 		fade_end_distance = glGetUniformLocation(reference, "fade_end_distance");
@@ -148,14 +140,13 @@ namespace rendering_program
 
 		atmospheric_blending = glGetUniformLocation(reference, "atmospheric_blending");
 
-		local_time = glGetUniformLocation(reference, "local_time");
-
 		glUseProgram(EMPTY_OBJECT);
 	}
 
 	void call()
 	{
 		XPLMSetGraphicsState(0, 8, 0, 0, 0, 0, 0);
+		glViewport(0, 0, simulator_objects::current_rendering_resolution.x, simulator_objects::current_rendering_resolution.y);
 
 		GLint previous_framebuffer;
 		glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &previous_framebuffer);
@@ -195,10 +186,8 @@ namespace rendering_program
 		glUniformMatrix4fv(inverse_projection_matrix, 1, GL_FALSE, glm::value_ptr(simulator_objects::inverse_projection_matrix));
 		glUniformMatrix4fv(inverse_modelview_matrix, 1, GL_FALSE, glm::value_ptr(simulator_objects::inverse_modelview_matrix));
 
-		glUniform1i(filter_index, current_frame % 2);
+		glUniform1i(frame_index, current_frame % 2);
 		current_frame++;
-
-		glUniformMatrix4fv(previous_mvp_matrix, 1, GL_FALSE, glm::value_ptr(simulator_objects::previous_mvp_matrix));
 
 		glUniform1f(cloud_map_scale, simulator_objects::cloud_map_scale);
 
@@ -207,19 +196,18 @@ namespace rendering_program
 
 		glUniform1f(blue_noise_scale, simulator_objects::blue_noise_scale);
 
-		glUniform1fv(cloud_bases, CLOUD_LAYER_COUNT, simulator_objects::cloud_bases);
-		glUniform1fv(cloud_heights, CLOUD_TYPE_COUNT, simulator_objects::cloud_heights);
-
 		glUniform1iv(cloud_types, CLOUD_LAYER_COUNT, simulator_objects::cloud_types);
+
+		glUniform1fv(cloud_bases, CLOUD_LAYER_COUNT, simulator_objects::cloud_bases);
+		glUniform1fv(cloud_tops, CLOUD_LAYER_COUNT, simulator_objects::cloud_tops);
+
 		glUniform1fv(cloud_coverages, CLOUD_TYPE_COUNT, simulator_objects::cloud_coverages);
+		glUniform1fv(cloud_densities, CLOUD_TYPE_COUNT, simulator_objects::cloud_densities);
 
 		glUniform3fv(base_noise_ratios, CLOUD_TYPE_COUNT, reinterpret_cast<GLfloat*>(simulator_objects::base_noise_ratios));
 		glUniform3fv(detail_noise_ratios, CLOUD_TYPE_COUNT, reinterpret_cast<GLfloat*>(simulator_objects::detail_noise_ratios));
 
-		glUniform1fv(cloud_densities, CLOUD_TYPE_COUNT, simulator_objects::cloud_densities);
-
-		glUniform1fv(wind_altitudes, WIND_LAYER_COUNT, simulator_objects::wind_altitudes);
-		glUniform3fv(wind_vectors, WIND_LAYER_COUNT, reinterpret_cast<GLfloat*>(simulator_objects::wind_vectors));
+		glUniform3fv(wind_offsets, CLOUD_LAYER_COUNT, reinterpret_cast<GLfloat*>(simulator_objects::wind_offsets));
 
 		glUniform1f(fade_start_distance, simulator_objects::fade_start_distance);
 		glUniform1f(fade_end_distance, simulator_objects::fade_end_distance);
@@ -240,8 +228,6 @@ namespace rendering_program
 
 		glUniform1f(atmospheric_blending, simulator_objects::atmospheric_blending);
 
-		glUniform1f(local_time, simulator_objects::local_time);
-
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 
 		XPLMBindTexture2d(EMPTY_OBJECT, 0);
@@ -261,5 +247,7 @@ namespace rendering_program
 
 		glBindVertexArray(EMPTY_OBJECT);
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, previous_framebuffer);
+
+		glViewport(simulator_objects::current_viewport.x, simulator_objects::current_viewport.y, simulator_objects::current_viewport.z, simulator_objects::current_viewport.w);
 	}
 }

@@ -76,11 +76,12 @@ namespace plugin_objects
 
 	void update()
 	{
+		XPLMSetGraphicsState(0, 1, 0, 0, 0, 0, 0);
+
+		glActiveTexture(GL_TEXTURE0);
+
 		if ((simulator_objects::current_viewport.z != simulator_objects::previous_viewport.z) || (simulator_objects::current_viewport.w != simulator_objects::previous_viewport.w))
 		{
-			XPLMSetGraphicsState(0, 2, 0, 0, 0, 0, 0);
-
-			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_2D, depth_texture);
 
 			GLenum depth_format;
@@ -89,25 +90,19 @@ namespace plugin_objects
 			else depth_format = GL_DEPTH_COMPONENT32F;
 
 			glCopyTexImage2D(GL_TEXTURE_2D, 0, depth_format, simulator_objects::current_viewport.x, simulator_objects::current_viewport.y, simulator_objects::current_viewport.z, simulator_objects::current_viewport.w, 0);
-			
-			glActiveTexture(GL_TEXTURE1);
-			glBindTexture(GL_TEXTURE_2D, rendering_texture);
-
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, simulator_objects::current_viewport.z, simulator_objects::current_viewport.w, 0, GL_RGBA, GL_FLOAT, nullptr);	
-
-			XPLMBindTexture2d(EMPTY_OBJECT, 0);
-			XPLMBindTexture2d(EMPTY_OBJECT, 1);
 		}
 		else
 		{
-			XPLMSetGraphicsState(0, 1, 0, 0, 0, 0, 0);
-
-			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_2D, depth_texture);
-
 			glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, simulator_objects::current_viewport.x, simulator_objects::current_viewport.y, simulator_objects::current_viewport.z, simulator_objects::current_viewport.w);
-
-			XPLMBindTexture2d(EMPTY_OBJECT, 0);
 		}
+
+		if ((simulator_objects::current_rendering_resolution.x != simulator_objects::previous_rendering_resolution.x) || (simulator_objects::current_rendering_resolution.y != simulator_objects::previous_rendering_resolution.y))
+		{
+			glBindTexture(GL_TEXTURE_2D, rendering_texture);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, simulator_objects::current_rendering_resolution.x, simulator_objects::current_rendering_resolution.y, 0, GL_RGBA, GL_FLOAT, nullptr);
+		}
+
+		XPLMBindTexture2d(EMPTY_OBJECT, 0);
 	}
 }

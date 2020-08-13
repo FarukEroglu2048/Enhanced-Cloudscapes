@@ -32,7 +32,7 @@ set_target_properties(enhanced_cloudscapes PROPERTIES PREFIX "")
 set_target_properties(enhanced_cloudscapes PROPERTIES SUFFIX ".xpl")
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
-	target_compile_definitions(enhanced_cloudscapes PRIVATE "IBM=1" "GLEW_BUILD=1")
+	target_compile_definitions(enhanced_cloudscapes PRIVATE "IBM=1" "GLEW_BUILD=1" "NOMINMAX=1")
 
 	set_target_properties(enhanced_cloudscapes PROPERTIES OUTPUT_NAME "win")
 	

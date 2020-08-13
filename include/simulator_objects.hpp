@@ -8,14 +8,17 @@
 #define CLOUD_LAYER_COUNT 3
 #define CLOUD_TYPE_COUNT 5
 
-#define WIND_LAYER_COUNT 3
-
 namespace simulator_objects
 {
 	extern int version;
 
 	extern glm::ivec4 previous_viewport;
 	extern glm::ivec4 current_viewport;
+
+	extern glm::ivec2 previous_rendering_resolution;
+	extern glm::ivec2 current_rendering_resolution;
+
+	extern int skip_fragments;
 
 	extern int reverse_z;
 
@@ -25,8 +28,6 @@ namespace simulator_objects
 	extern glm::mat4 inverse_projection_matrix;
 	extern glm::mat4 inverse_modelview_matrix;
 
-	extern glm::mat4 previous_mvp_matrix;
-
 	extern float cloud_map_scale;
 
 	extern float base_noise_scale;
@@ -34,19 +35,18 @@ namespace simulator_objects
 
 	extern float blue_noise_scale;
 
-	extern float cloud_bases[CLOUD_LAYER_COUNT];
-	extern float cloud_heights[CLOUD_TYPE_COUNT];
-
 	extern int cloud_types[CLOUD_LAYER_COUNT];
+
+	extern float cloud_bases[CLOUD_LAYER_COUNT];
+	extern float cloud_tops[CLOUD_LAYER_COUNT];
+
 	extern float cloud_coverages[CLOUD_TYPE_COUNT];
+	extern float cloud_densities[CLOUD_TYPE_COUNT];
 
 	extern glm::vec3 base_noise_ratios[CLOUD_TYPE_COUNT];
 	extern glm::vec3 detail_noise_ratios[CLOUD_TYPE_COUNT];
 
-	extern float cloud_densities[CLOUD_TYPE_COUNT];
-
-	extern float wind_altitudes[WIND_LAYER_COUNT];
-	extern glm::vec3 wind_vectors[WIND_LAYER_COUNT];
+	extern glm::vec3 wind_offsets[CLOUD_LAYER_COUNT];
 
 	extern float fade_start_distance;
 	extern float fade_end_distance;
@@ -66,8 +66,6 @@ namespace simulator_objects
 	extern glm::vec3 atmosphere_top_tint;
 
 	extern float atmospheric_blending;
-
-	extern float local_time;
 
 	void initialize();
 	void update();

@@ -253,7 +253,14 @@ vec4 sample_ray_march(in vec4 input_color, in int cloud_layer_index)
 
 			while (current_ray_distance <= layer_intersections.y)
 			{
-				float current_step_size = step_size * map(texture(blue_noise_texture, current_ray_position.xz * blue_noise_scale).x, 0.0, 1.0, 0.75, 1.0) * map(current_ray_distance, 0.0, layer_intersections.y, 1.0, 8.0);
+				float current_step_size = step_size * map(texture(blue_noise_texture, current_ray_position.xz * blue_noise_scale).x, 0.0, 1.0, 0.75, 1.0);
+
+				float distance_multiplier;
+
+				if (current_ray_distance < 40000.0) distance_multiplier = map(current_ray_distance, 0.0, 40000.0, 1.0, 4.0);
+				else distance_multiplier = map(current_ray_distance, 40000.0, layer_intersections.y, 4.0, 16.0);
+
+				current_step_size *= distance_multiplier;
 
 				float cloud_sample = sample_clouds(current_ray_position, cloud_layer_index);
 

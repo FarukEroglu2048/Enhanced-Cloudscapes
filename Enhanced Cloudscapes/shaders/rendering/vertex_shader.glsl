@@ -5,8 +5,8 @@ layout(location = 0) in vec2 input_vertex;
 uniform float near_clip_z;
 uniform float far_clip_z;
 
-uniform mat4 inverse_projection_matrix;
 uniform mat4 inverse_modelview_matrix;
+uniform mat4 inverse_projection_matrix;
 
 out vec3 ray_start_position;
 out vec3 ray_end_position;

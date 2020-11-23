@@ -15,8 +15,6 @@
 
 #include <cstring>
 
-XPLMDataRef callback_type_dataref;
-
 #ifdef IBM
 BOOL APIENTRY DllMain(IN HINSTANCE dll_handle, IN DWORD call_reason, IN LPVOID reserved)
 {
@@ -26,14 +24,11 @@ BOOL APIENTRY DllMain(IN HINSTANCE dll_handle, IN DWORD call_reason, IN LPVOID r
 
 int draw_callback(XPLMDrawingPhase drawing_phase, int is_before, void* callback_reference)
 {
-	if ((simulator_objects::version >= 115000) || (XPLMGetDatai(callback_type_dataref) == 2))
-	{
-		simulator_objects::update();
-		plugin_objects::update();
+	simulator_objects::update();
+	plugin_objects::update();
 
-		rendering_program::call();
-		post_processing_program::call();
-	}
+	rendering_program::call();
+	post_processing_program::call();
 
 	return 1;
 }
@@ -52,10 +47,7 @@ PLUGIN_API int XPluginStart(char* plugin_name, char* plugin_signature, char* plu
 	rendering_program::initialize();
 	post_processing_program::initialize();
 
-	callback_type_dataref = XPLMFindDataRef("sim/graphics/view/plane_render_type");
-
-	if (simulator_objects::version >= 115000) XPLMRegisterDrawCallback(draw_callback, xplm_Phase_Modern3D, 0, nullptr);
-	else XPLMRegisterDrawCallback(draw_callback, xplm_Phase_Airplanes, 0, nullptr);
+	XPLMRegisterDrawCallback(draw_callback, xplm_Phase_Modern3D, 0, nullptr);
 
 	return 1;
 }

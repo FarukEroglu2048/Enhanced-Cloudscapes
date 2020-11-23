@@ -2,7 +2,7 @@
 
 in vec2 fullscreen_texture_position;
 
-uniform sampler2D rendering_texture;
+uniform sampler2D current_rendering_texture;
 
 layout(location = 0) out vec4 fragment_color;
 
@@ -19,7 +19,7 @@ vec3 tone_mapping(vec3 input_color)
 
 void main()
 {
-	vec4 rendered_color = texture(rendering_texture, fullscreen_texture_position);
+	vec4 rendered_color = texture(current_rendering_texture, fullscreen_texture_position);
 	rendered_color.xyz = tone_mapping(rendered_color.xyz);
 
 	fragment_color = rendered_color;

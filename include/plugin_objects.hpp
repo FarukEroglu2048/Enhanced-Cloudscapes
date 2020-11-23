@@ -6,7 +6,8 @@
 
 namespace plugin_objects
 {
-	extern int depth_texture;
+	extern int previous_depth_texture;
+	extern int current_depth_texture;
 
 	extern int cloud_map_textures[CLOUD_LAYER_COUNT];
 
@@ -15,7 +16,8 @@ namespace plugin_objects
 
 	extern int blue_noise_texture;
 
-	extern int rendering_texture;
+	extern int previous_rendering_texture;
+	extern int current_rendering_texture;
 
 	extern GLuint framebuffer;
 	extern GLuint vertex_array;

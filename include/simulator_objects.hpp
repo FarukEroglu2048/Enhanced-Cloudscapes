@@ -6,28 +6,37 @@
 #include <glm/mat4x4.hpp>
 
 #define CLOUD_LAYER_COUNT 3
-#define CLOUD_TYPE_COUNT 5
+#define CLOUD_TYPE_COUNT 6
 
 namespace simulator_objects
 {
-	extern int version;
-
 	extern glm::ivec4 previous_viewport;
 	extern glm::ivec4 current_viewport;
 
 	extern glm::ivec2 previous_rendering_resolution;
 	extern glm::ivec2 current_rendering_resolution;
 
-	extern int skip_fragments;
-	extern int frame_index;
-
 	extern int reverse_z;
 
 	extern float near_clip_z;
 	extern float far_clip_z;
 
-	extern glm::mat4 inverse_projection_matrix;
-	extern glm::mat4 inverse_modelview_matrix;
+	extern glm::dmat4 previous_mvp_matrix;
+	extern glm::dmat4 current_mvp_matrix;
+
+	extern glm::dmat4 inverse_modelview_matrix;
+	extern glm::dmat4 inverse_projection_matrix;
+
+	extern int skip_fragments;
+	extern int frame_index;
+
+	extern int sample_step_count;
+	extern int sun_step_count;
+
+	extern float maximum_sample_step_size;
+	extern float maximum_sun_step_size;
+
+	extern int use_blue_noise_dithering;
 
 	extern float cloud_map_scale;
 
@@ -49,8 +58,13 @@ namespace simulator_objects
 
 	extern glm::vec3 wind_offsets[CLOUD_LAYER_COUNT];
 
+	extern float base_anvil;
+	extern float top_anvil;
+
 	extern float fade_start_distance;
 	extern float fade_end_distance;
+
+	extern float light_attenuation;
 
 	extern glm::vec3 sun_direction;
 
@@ -60,8 +74,7 @@ namespace simulator_objects
 	extern glm::vec3 ambient_tint;
 	extern float ambient_gain;
 
-	extern float backward_mie_scattering;
-	extern float forward_mie_scattering;
+	extern float mie_scattering;
 
 	extern glm::vec3 atmosphere_bottom_tint;
 	extern glm::vec3 atmosphere_top_tint;

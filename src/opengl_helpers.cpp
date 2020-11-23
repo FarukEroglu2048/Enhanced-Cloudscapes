@@ -61,8 +61,8 @@ int create_fullscreen_texture()
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, texture_reference);
 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
 	XPLMBindTexture2d(EMPTY_OBJECT, 0);
 
@@ -207,6 +207,8 @@ GLuint load_shader(const char* shader_path, GLenum shader_type)
 
 GLuint create_program(GLuint vertex_shader, GLuint fragment_shader)
 {
+	GLuint output_program = EMPTY_OBJECT;
+
 	GLuint program_reference = glCreateProgram();
 
 	glAttachShader(program_reference, vertex_shader);
@@ -214,5 +216,25 @@ GLuint create_program(GLuint vertex_shader, GLuint fragment_shader)
 
 	glLinkProgram(program_reference);
 
-	return program_reference;
+	GLint program_link_status;
+	glGetProgramiv(program_reference, GL_LINK_STATUS, &program_link_status);
+
+	if (program_link_status == GL_TRUE) output_program = program_reference;
+	else
+	{
+		GLint compilation_log_length;
+		glGetProgramiv(program_reference, GL_INFO_LOG_LENGTH, &compilation_log_length);
+
+		GLchar* compilation_message = new GLchar[compilation_log_length];
+		glGetProgramInfoLog(program_reference, compilation_log_length, nullptr, compilation_message);
+
+		XPLMDebugString("\nProgram compilation failed!\n\n");
+
+		XPLMDebugString("Compilation error message is:\n");
+		XPLMDebugString(compilation_message);
+
+		delete[] compilation_message;
+	}
+
+	return output_program;
 }

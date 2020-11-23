@@ -21,8 +21,8 @@ namespace post_processing_program
 		reference = create_program(vertex_shader, fragment_shader);
 		glUseProgram(reference);
 
-		GLint rendering_texture = glGetUniformLocation(reference, "rendering_texture");
-		glUniform1i(rendering_texture, 0);
+		GLint current_rendering_texture = glGetUniformLocation(reference, "current_rendering_texture");
+		glUniform1i(current_rendering_texture, 0);
 
 		near_clip_z = glGetUniformLocation(reference, "near_clip_z");
 
@@ -38,7 +38,7 @@ namespace post_processing_program
 		glUseProgram(reference);
 
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, plugin_objects::rendering_texture);
+		glBindTexture(GL_TEXTURE_2D, plugin_objects::current_rendering_texture);
 
 		glUniform1f(near_clip_z, simulator_objects::near_clip_z);
 

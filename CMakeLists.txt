@@ -1,6 +1,6 @@
 ﻿cmake_minimum_required(VERSION 3.8)
 
-project("Enhanced Cloudscapes")
+project("Enhanced_Cloudscapes")
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
@@ -36,20 +36,20 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
 
 	set_target_properties(enhanced_cloudscapes PROPERTIES OUTPUT_NAME "win")
 	
-	install(DIRECTORY "Enhanced Cloudscapes" DESTINATION ${CMAKE_INSTALL_PREFIX})
-	install(TARGETS enhanced_cloudscapes RUNTIME DESTINATION "${CMAKE_INSTALL_PREFIX}/Enhanced Cloudscapes")
+	install(DIRECTORY "Enhanced_Cloudscapes" DESTINATION ${CMAKE_INSTALL_PREFIX})
+	install(TARGETS enhanced_cloudscapes RUNTIME DESTINATION "${CMAKE_INSTALL_PREFIX}/Enhanced_Cloudscapes")
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
 	target_compile_definitions(enhanced_cloudscapes PRIVATE "LIN=1")
 
 	set_target_properties(enhanced_cloudscapes PROPERTIES OUTPUT_NAME "lin")
 
-	install(DIRECTORY "Enhanced Cloudscapes" DESTINATION ${CMAKE_INSTALL_PREFIX})
-	install(TARGETS enhanced_cloudscapes LIBRARY DESTINATION "${CMAKE_INSTALL_PREFIX}/Enhanced Cloudscapes")
+	install(DIRECTORY "Enhanced_Cloudscapes" DESTINATION ${CMAKE_INSTALL_PREFIX})
+	install(TARGETS enhanced_cloudscapes LIBRARY DESTINATION "${CMAKE_INSTALL_PREFIX}/Enhanced_Cloudscapes")
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
 	target_compile_definitions(enhanced_cloudscapes PRIVATE "APL=1")
 
 	set_target_properties(enhanced_cloudscapes PROPERTIES OUTPUT_NAME "mac")
 
-	install(DIRECTORY "Enhanced Cloudscapes" DESTINATION ${CMAKE_INSTALL_PREFIX})
-	install(TARGETS enhanced_cloudscapes FRAMEWORK DESTINATION "${CMAKE_INSTALL_PREFIX}/Enhanced Cloudscapes")
+	install(DIRECTORY "Enhanced_Cloudscapes" DESTINATION ${CMAKE_INSTALL_PREFIX})
+	install(TARGETS enhanced_cloudscapes FRAMEWORK DESTINATION "${CMAKE_INSTALL_PREFIX}/Enhanced_Cloudscapes")
 endif()

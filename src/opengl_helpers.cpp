@@ -168,8 +168,8 @@ GLuint load_shader(const char* shader_path, GLenum shader_type)
 		shader_file.read(shader_string, shader_file_size);
 
 		GLuint shader_reference = glCreateShader(shader_type);
-
-		glShaderSource(shader_reference, 1, &shader_string, &shader_file_size);
+		const GLchar* const_shader_string = shader_string;
+		glShaderSource(shader_reference, 1, &const_shader_string, &shader_file_size);
 		glCompileShader(shader_reference);
 
 		delete[] shader_string;

@@ -78,8 +78,8 @@ namespace rendering_program
 
 	void initialize()
 	{
-		GLuint vertex_shader = load_shader("Resources/plugins/Enhanced Cloudscapes/shaders/rendering/vertex_shader.glsl", GL_VERTEX_SHADER);
-		GLuint fragment_shader = load_shader("Resources/plugins/Enhanced Cloudscapes/shaders/rendering/fragment_shader.glsl", GL_FRAGMENT_SHADER);
+		GLuint vertex_shader = load_shader("Resources/plugins/Enhanced_Cloudscapes/shaders/rendering/vertex_shader.glsl", GL_VERTEX_SHADER);
+		GLuint fragment_shader = load_shader("Resources/plugins/Enhanced_Cloudscapes/shaders/rendering/fragment_shader.glsl", GL_FRAGMENT_SHADER);
 
 		reference = create_program(vertex_shader, fragment_shader);
 		glUseProgram(reference);

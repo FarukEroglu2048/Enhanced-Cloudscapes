@@ -35,7 +35,7 @@ int draw_callback(XPLMDrawingPhase drawing_phase, int is_before, void* callback_
 
 PLUGIN_API int XPluginStart(char* plugin_name, char* plugin_signature, char* plugin_description)
 {
-	std::strcpy(plugin_name, "Enhanced Cloudscapes");
+	std::strcpy(plugin_name, "Enhanced_Cloudscapes");
 	std::strcpy(plugin_signature, "FarukEroglu2048.enhanced_cloudscapes");
 	std::strcpy(plugin_description, "Volumetric Clouds for X-Plane 11");
 

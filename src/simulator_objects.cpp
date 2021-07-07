@@ -9,7 +9,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include <XPLMDisplay.h>
-
+#include <XPLMGraphics.h>
 #define WIND_LAYER_COUNT 3
 
 #define MPS_PER_KNOTS 0.514444444f
